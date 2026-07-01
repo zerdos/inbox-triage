@@ -15,6 +15,16 @@ Any update on the Series A deck?
 
 ...or paste a JSON array of {id, source, subject, body, receivedAt} objects.`;
 
+const EXAMPLE_INPUT = `From: alice@acme.com
+Subject: Prod outage
+
+The checkout API has been returning 500s for 10 minutes.
+
+From: bob@investor.vc
+Subject: Following up
+
+Any update on the Series A deck?`;
+
 interface InputScreenProps {
   onSubmit: (raw: string) => void;
   isLoading: boolean;
@@ -33,6 +43,17 @@ export function InputScreen({ onSubmit, isLoading, error }: InputScreenProps) {
           Paste a batch of messages. Gemini will classify urgency/category, extract action items,
           and let you draft replies for the ones that matter.
         </p>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="button"
+          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={isLoading}
+          onClick={() => setRaw(EXAMPLE_INPUT)}
+        >
+          Use example
+        </button>
       </div>
 
       <textarea
