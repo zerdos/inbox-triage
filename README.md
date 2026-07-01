@@ -1,5 +1,7 @@
 # Inbox Triage
 
+[![CI](https://github.com/zerdos/inbox-triage/actions/workflows/ci.yml/badge.svg)](https://github.com/zerdos/inbox-triage/actions/workflows/ci.yml)
+
 Paste a batch of inbound messages (emails, Slack, tickets) and Gemini classifies each by
 category/urgency, extracts action items, and drafts replies for the ones that matter.
 
@@ -13,7 +15,7 @@ category/urgency, extracts action items, and drafts replies for the ones that ma
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- [Node.js](https://nodejs.org/) v24+ (matches the version CI runs)
 - A [Gemini API Key](https://aistudio.google.com/app/apikey)
 
 ## Stack
