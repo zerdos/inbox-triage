@@ -3,6 +3,19 @@
 Paste a batch of inbound messages (emails, Slack, tickets) and Gemini classifies each by
 category/urgency, extracts action items, and drafts replies for the ones that matter.
 
+## Features
+
+- **Batch Processing**: Handle multiple inbound messages simultaneously.
+- **Auto-classification**: Automatically categorize and assess the urgency of each message.
+- **Action Items**: Extract key action items from the text.
+- **Draft Replies**: Generate draft responses for messages that require them.
+- **Privacy First**: No database or authentication required. Results are stored in memory and `localStorage` for the current batch.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- A [Gemini API Key](https://aistudio.google.com/app/apikey)
+
 ## Stack
 
 - Frontend: React + Vite + Tailwind v4
@@ -31,6 +44,8 @@ http://localhost:8788 — that's the port serving both the app and `/api/*` rout
 - `npm run typecheck` — type-check frontend + Pages Functions
 - `npm run build` — production build to `dist/`
 - `npm run lint` — oxlint
+- `npm run test` — run tests using vitest
+- `npm run test:watch` — run tests in watch mode
 - `npm run deploy` — build and `wrangler pages deploy ./dist`
 
 ## Deploying
