@@ -30,7 +30,7 @@ export function InputScreen({ onSubmit, isLoading, error }: InputScreenProps) {
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Inbox Triage</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Paste a batch of messages. Claude will classify urgency/category, extract action items,
+          Paste a batch of messages. Gemini will classify urgency/category, extract action items,
           and let you draft replies for the ones that matter.
         </p>
       </div>

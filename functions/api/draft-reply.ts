@@ -1,4 +1,4 @@
-import { callForText, AnthropicApiError } from "../_lib/anthropic";
+import { callForText, GeminiApiError } from "../_lib/gemini";
 import { draftReplyRequestSchema } from "../_lib/validation";
 
 const DRAFT_SYSTEM_PROMPT = `You draft short, professional reply emails/messages on behalf of a busy person.
@@ -7,8 +7,8 @@ action items, summary). Write a concise reply that addresses the action items. M
 the original message. Output only the reply text, no subject line, no preamble.`;
 
 export const onRequestPost: PagesFunction<Env> = async (ctx) => {
-  if (!ctx.env.ANTHROPIC_API_KEY) {
-    return Response.json({ error: "Server is missing ANTHROPIC_API_KEY" }, { status: 500 });
+  if (!ctx.env.GEMINI_API_KEY) {
+    return Response.json({ error: "Server is missing GEMINI_API_KEY" }, { status: 500 });
   }
 
   let payload: unknown;
@@ -37,14 +37,14 @@ Summary: ${triage.summary}
 Action items: ${triage.actionItems.join("; ") || "none"}`;
 
   try {
-    const draft = await callForText(ctx.env.ANTHROPIC_API_KEY, {
+    const draft = await callForText(ctx.env.GEMINI_API_KEY, {
       system: DRAFT_SYSTEM_PROMPT,
       userContent,
       maxTokens: 1024,
     });
     return Response.json({ draft });
   } catch (error) {
-    if (error instanceof AnthropicApiError) {
+    if (error instanceof GeminiApiError) {
       return Response.json({ error: error.message }, { status: 502 });
     }
     return Response.json({ error: "Unexpected error while drafting reply" }, { status: 500 });

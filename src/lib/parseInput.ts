@@ -24,48 +24,67 @@ export function tryParseJson(raw: string): InboxItem[] | null {
 }
 
 /**
- * Parses blank-line-separated text blocks. Each block may start with a
- * "From: ..." line and a "Subject: ..." line; everything after is the body.
+ * Parses items separated by blank lines. Each item may start with a "From: ..."
+ * and/or "Subject: ..." header line, optionally followed by a blank line, then
+ * the body. Items themselves are delimited by blank lines (not by the header/body
+ * separator blank line, which is consumed as part of the header).
  */
 export function parsePlainText(raw: string): InboxItem[] {
   const now = new Date().toISOString();
-  const blocks = raw
-    .split(/\n\s*\n+/)
-    .map((block) => block.trim())
-    .filter(Boolean);
+  const lines = raw.split("\n");
+  const items: InboxItem[] = [];
+  let i = 0;
 
-  return blocks.map((block, index) => {
-    const lines = block.split("\n");
+  while (i < lines.length) {
+    while (i < lines.length && lines[i].trim() === "") i++;
+    if (i >= lines.length) break;
+
     let source = "pasted";
     let subject = "";
+    let consumedHeader = false;
 
-    while (lines.length > 0) {
-      const line = lines[0];
+    while (i < lines.length) {
+      const line = lines[i];
       const fromMatch = line.match(/^from:\s*(.+)$/i);
       const subjectMatch = line.match(/^subject:\s*(.+)$/i);
       if (fromMatch) {
         source = fromMatch[1].trim();
-        lines.shift();
+        i++;
+        consumedHeader = true;
       } else if (subjectMatch) {
         subject = subjectMatch[1].trim();
-        lines.shift();
+        i++;
+        consumedHeader = true;
       } else {
         break;
       }
     }
 
-    if (!subject) {
-      subject = lines.shift() ?? `Item ${index + 1}`;
+    if (consumedHeader && i < lines.length && lines[i].trim() === "") {
+      i++;
     }
 
-    return {
+    if (!subject) {
+      subject = lines[i] ?? `Item ${items.length + 1}`;
+      i++;
+    }
+
+    const bodyLines: string[] = [];
+    while (i < lines.length && lines[i].trim() !== "") {
+      bodyLines.push(lines[i]);
+      i++;
+    }
+
+    items.push({
       id: crypto.randomUUID(),
       source,
       subject,
-      body: lines.join("\n").trim(),
+      body: bodyLines.join("\n").trim(),
       receivedAt: now,
-    };
-  });
+    });
+  }
+
+  return items;
 }
 
 export function parseInboxInput(raw: string): InboxItem[] {

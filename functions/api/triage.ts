@@ -1,4 +1,4 @@
-import { callWithTool, AnthropicApiError } from "../_lib/anthropic";
+import { callWithSchema, GeminiApiError } from "../_lib/gemini";
 import { triageRequestSchema } from "../_lib/validation";
 import type { TriageResult } from "../../src/types";
 
@@ -14,34 +14,30 @@ Guidelines:
 
 You must return exactly one result per input item, matching each item's "id".`;
 
-const TRIAGE_TOOL = {
-  name: "submit_triage",
-  description: "Submit triage classifications for a batch of inbox items.",
-  input_schema: {
-    type: "object",
-    properties: {
-      results: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            id: { type: "string", description: "Must match the input item's id" },
-            category: { type: "string" },
-            urgency: { type: "integer", minimum: 1, maximum: 5 },
-            actionItems: { type: "array", items: { type: "string" } },
-            summary: { type: "string" },
-          },
-          required: ["id", "category", "urgency", "actionItems", "summary"],
+const TRIAGE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    results: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          id: { type: "STRING", description: "Must match the input item's id" },
+          category: { type: "STRING" },
+          urgency: { type: "INTEGER" },
+          actionItems: { type: "ARRAY", items: { type: "STRING" } },
+          summary: { type: "STRING" },
         },
+        required: ["id", "category", "urgency", "actionItems", "summary"],
       },
     },
-    required: ["results"],
   },
+  required: ["results"],
 };
 
 export const onRequestPost: PagesFunction<Env> = async (ctx) => {
-  if (!ctx.env.ANTHROPIC_API_KEY) {
-    return Response.json({ error: "Server is missing ANTHROPIC_API_KEY" }, { status: 500 });
+  if (!ctx.env.GEMINI_API_KEY) {
+    return Response.json({ error: "Server is missing GEMINI_API_KEY" }, { status: 500 });
   }
 
   let payload: unknown;
@@ -59,15 +55,15 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
   const userContent = JSON.stringify(parsed.data.items, null, 2);
 
   try {
-    const { results } = await callWithTool<{ results: TriageResult[] }>(ctx.env.ANTHROPIC_API_KEY, {
+    const { results } = await callWithSchema<{ results: TriageResult[] }>(ctx.env.GEMINI_API_KEY, {
       system: TRIAGE_SYSTEM_PROMPT,
       userContent: `Triage these items:\n${userContent}`,
       maxTokens: 4096,
-      tool: TRIAGE_TOOL,
+      schema: TRIAGE_SCHEMA,
     });
     return Response.json({ results });
   } catch (error) {
-    if (error instanceof AnthropicApiError) {
+    if (error instanceof GeminiApiError) {
       return Response.json({ error: error.message }, { status: 502 });
     }
     return Response.json({ error: "Unexpected error while triaging items" }, { status: 500 });

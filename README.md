@@ -1,19 +1,19 @@
 # Inbox Triage
 
-Paste a batch of inbound messages (emails, Slack, tickets) and Claude classifies each by
+Paste a batch of inbound messages (emails, Slack, tickets) and Gemini classifies each by
 category/urgency, extracts action items, and drafts replies for the ones that matter.
 
 ## Stack
 
 - Frontend: React + Vite + Tailwind v4
-- Backend: Cloudflare Pages Functions (`functions/api/*`), calling the Claude API directly via `fetch`
+- Backend: Cloudflare Pages Functions (`functions/api/*`), calling the Gemini API directly via `fetch`
 - No auth, no database — results live in memory + `localStorage` for the current batch
 
 ## Setup
 
 ```bash
 npm install
-cp .dev.vars.example .dev.vars   # then fill in ANTHROPIC_API_KEY
+cp .dev.vars.example .dev.vars   # then fill in GEMINI_API_KEY
 npx wrangler types                # regenerate Env types after touching wrangler.jsonc
 ```
 
@@ -36,6 +36,6 @@ http://localhost:8788 — that's the port serving both the app and `/api/*` rout
 ## Deploying
 
 ```bash
-npx wrangler pages secret put ANTHROPIC_API_KEY
+npx wrangler pages secret put GEMINI_API_KEY
 npm run deploy
 ```
